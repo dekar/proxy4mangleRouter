@@ -57,3 +57,8 @@ bool HttpRequest::modifyHeader(QString header, QString value)
     }
     return false;
 }
+
+bool HttpRequest::modifyBody(QString findFor, QString replaceTo)
+{
+    this->body = this->body.replace(findFor,replaceTo);
+}

@@ -35,22 +35,25 @@ void proxyClient(int clientSocket, const std::string& remoteHost, int remotePort
         return;
     }
 
-    char buffer[BUFFER_SIZE];
+    char bufferIn[BUFFER_SIZE];
+    char bufferOut[BUFFER_SIZE];
     ssize_t bytesRead;
 
-    while(true)
+    usleep(100*1000);
+
+    while((bytesRead = recv(clientSocket, bufferIn, BUFFER_SIZE, 0)) == 0);
+    bytesRead = mangleSending(bufferIn, bytesRead);
+    send(remoteSocket, bufferIn, bytesRead, 0);
+    int bufPos = 0;
+    while((bytesRead = recv(remoteSocket, bufferOut + bufPos, BUFFER_SIZE - bufPos, 0)) >0) //while not closed
     {
-        while((bytesRead = recv(clientSocket, buffer, BUFFER_SIZE, 0)) == 0);
-        bytesRead = mangleSending(buffer, bytesRead);
-        send(remoteSocket, buffer, bytesRead, 0);
-        while((bytesRead = recv(remoteSocket, buffer, BUFFER_SIZE, 0)) == 0);
-        bytesRead = mangleRecieve(buffer, bytesRead);
-        send(clientSocket, buffer, bytesRead, 0);
-        usleep(100*1000);
-        //if(remoteSocket)
-    }
-    close(remoteSocket);
+        bufPos += bytesRead;
+    };
+    bytesRead = mangleRecieve(bufferOut, bufPos);
+    send(clientSocket, bufferOut, bytesRead, 0);
     close(clientSocket);
+    std::cerr << "Got "<< bytesRead << " bytes" << std::endl;
+    usleep(100*1000);
 }
 
 

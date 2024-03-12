@@ -15,6 +15,7 @@ public:
 
 
     bool modifyHeader(QString header, QString value);
+    bool modifyBody(QString findFor, QString replaceTo);
 };
 
 #endif // HTTPREQUEST_H
